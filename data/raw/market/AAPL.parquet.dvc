@@ -1,0 +1,5 @@
+outs:
+- md5: b834d5242f723758661280fa108d067a
+  size: 139231
+  hash: md5
+  path: AAPL.parquet
