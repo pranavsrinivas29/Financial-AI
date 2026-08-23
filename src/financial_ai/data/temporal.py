@@ -1,12 +1,20 @@
+import logging
+
 import pandas as pd
 
 from financial_ai.data.market_data import (
     get_market_data,
 )
+from financial_ai.data.news_data import (
+    get_company_news,
+)
 from financial_ai.data.sec_data import (
     build_filing_metadata,
+    get_company_name,
 )
 
+
+logger = logging.getLogger(__name__)
 
 def get_latest_sec_filing(
     ticker: str,
@@ -82,18 +90,19 @@ def get_latest_8k(
         as_of_date=as_of_date,
     )
 
-
 def get_point_in_time_context(
     ticker: str,
     as_of_date: str,
     lookback_years: int = 10,
+    news_lookback_days: int = 7,
+    include_news: bool = True,
 ) -> dict:
-    """
-    Central point-in-time context.
 
-    Future ML/NLP/RAG components should use
-    this service instead of retrieving data directly.
-    """
+    ticker = ticker.upper()
+
+    company_name = get_company_name(
+        ticker
+    )
 
     market_data = get_market_data(
         ticker=ticker,
@@ -111,10 +120,57 @@ def get_point_in_time_context(
         as_of_date=as_of_date,
     )
 
+    news_error = None
+
+    if include_news:
+
+        try:
+
+            news = get_company_news(
+                ticker=ticker,
+                company_name=company_name,
+                as_of_date=as_of_date,
+                lookback_days=(
+                    news_lookback_days
+                ),
+            )
+
+        except Exception as exc:
+
+            logger.exception(
+                "News retrieval failed"
+            )
+
+            news = pd.DataFrame()
+
+            news_error = str(exc)
+
+    else:
+
+        news = pd.DataFrame()
+
     return {
-        "ticker": ticker.upper(),
-        "as_of_date": as_of_date,
-        "market_data": market_data,
-        "latest_10q": latest_10q,
-        "latest_8k": latest_8k,
+        "ticker":
+            ticker,
+
+        "company_name":
+            company_name,
+
+        "as_of_date":
+            as_of_date,
+
+        "market_data":
+            market_data,
+
+        "latest_10q":
+            latest_10q,
+
+        "latest_8k":
+            latest_8k,
+
+        "news":
+            news,
+
+        "news_error":
+            news_error,
     }

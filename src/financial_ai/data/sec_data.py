@@ -399,4 +399,31 @@ def download_filing_document(
 
     return output_path
     
-    
+def get_company_name(
+    ticker: str,
+) -> str:
+
+    ticker = ticker.upper()
+
+    ticker_map = (
+        get_company_ticker_map()
+    )
+
+    match = ticker_map[
+        ticker_map["ticker"].eq(
+            ticker
+        )
+    ]
+
+    if match.empty:
+
+        raise ValueError(
+            f"Ticker {ticker} "
+            "not found in SEC mapping."
+        )
+
+    return str(
+        match.iloc[0][
+            "company_name"
+        ]
+    )
