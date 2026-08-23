@@ -1,0 +1,5 @@
+outs:
+- md5: 47dd681d1cc7d841a91f2f3d3c781f21
+  size: 61302
+  hash: md5
+  path: filings_metadata.parquet

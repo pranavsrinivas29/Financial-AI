@@ -38,6 +38,6 @@ artifacts/
 .dvc/cache/
 
 # Generated datasets
-data/raw/
-data/processed/
-data/features/
+*.parquet
+
+.gitignore

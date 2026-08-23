@@ -1,0 +1,5 @@
+outs:
+- md5: 44e6e0ea2512435ce73e8a8594c85d05
+  size: 277662
+  hash: md5
+  path: sec_company_tickers.parquet

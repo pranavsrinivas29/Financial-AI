@@ -43,5 +43,9 @@ class Settings:
         "2016-01-01",
     )
 
+    SEC_USER_AGENT = os.getenv(
+        "SEC_USER_AGENT",
+        "FinancialAI your-email@example.com",
+    )
 
 settings = Settings()
