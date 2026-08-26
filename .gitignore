@@ -41,3 +41,6 @@ artifacts/
 *.parquet
 
 .gitignore
+
+mlruns/
+mlartifacts/
