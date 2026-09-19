@@ -36,7 +36,7 @@ def health_check():
     response_model=AnalyzeResponse,
     tags=["Analysis"],
 )
-def analyze(
+async def analyze(
     request: AnalyzeRequest,
 ):
 

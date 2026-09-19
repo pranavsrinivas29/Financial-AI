@@ -41,7 +41,11 @@ def load_finbert():
         )
     )
 
+    model = model.to("cpu")
+
     model.eval()
+
+    torch.set_num_threads(1)
 
     return tokenizer, model
 
@@ -68,6 +72,11 @@ def predict_sentiment(
         truncation=True,
         max_length=512,
     )
+
+    inputs = {
+        key: value.to("cpu")
+        for key, value in inputs.items()
+    }
 
     with torch.no_grad():
 
@@ -126,7 +135,6 @@ def predict_sentiment(
                 0.0,
             ),
     }
-
 def add_news_sentiment(
     news_df: pd.DataFrame,
     batch_size: int = 16,
@@ -135,7 +143,11 @@ def add_news_sentiment(
     if news_df.empty:
         return news_df.copy()
 
-    df = news_df.copy()
+    df = (
+        news_df
+        .copy()
+        .reset_index(drop=True)
+    )
 
     tokenizer, model = load_finbert()
 
@@ -158,6 +170,13 @@ def add_news_sentiment(
             start:start + batch_size
         ]
 
+        print(
+            f"FinBERT: starting batch "
+            f"{start // batch_size + 1}, "
+            f"size={len(batch)}",
+            flush=True,
+        )
+
         inputs = tokenizer(
             batch,
             return_tensors="pt",
@@ -166,11 +185,26 @@ def add_news_sentiment(
             max_length=512,
         )
 
+        inputs = {
+            key: value.to("cpu")
+            for key, value in inputs.items()
+        }
+
+        print(
+            "FinBERT: tokenization done",
+            flush=True,
+        )
+
         with torch.no_grad():
 
             outputs = model(
                 **inputs
             )
+
+        print(
+            "FinBERT: forward pass done",
+            flush=True,
+        )
 
         probabilities = torch.softmax(
             outputs.logits,
@@ -228,9 +262,22 @@ def add_news_sentiment(
                 }
             )
 
+    print(
+        f"FinBERT: results={len(all_results)}, "
+        f"news={len(df)}",
+        flush=True,
+    )
+
+    if len(all_results) != len(df):
+
+        raise ValueError(
+            "FinBERT output count mismatch: "
+            f"{len(all_results)} predictions "
+            f"for {len(df)} news articles"
+        )
+
     sentiment_df = pd.DataFrame(
-        all_results,
-        index=df.index,
+        all_results
     )
 
     return pd.concat(
