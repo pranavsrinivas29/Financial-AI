@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+
+metadata:
+  name: financial-ai-api
+
+spec:
+  replicas: {{ .Values.api.replicaCount }}
+
+  selector:
+    matchLabels:
+      app: financial-ai-api
+
+  template:
+    metadata:
+      labels:
+        app: financial-ai-api
+
+    spec:
+      containers:
+
+        - name: api
+
+          image: >
+            {{ .Values.api.image.repository }}:
+            {{- .Values.api.image.tag }}
+
+          imagePullPolicy:
+            {{ .Values.api.image.pullPolicy }}
+
+          ports:
+            - containerPort: 8000
+
+          env:
+
+            - name: MLFLOW_TRACKING_URI
+              value:
+                "{{ .Values.config.mlflowTrackingUri }}"
+
+            - name: OLLAMA_BASE_URL
+              value:
+                "{{ .Values.config.ollamaBaseUrl }}"

@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+
+metadata:
+  name: financial-ai-streamlit
+
+spec:
+  replicas:
+    {{ .Values.streamlit.replicaCount }}
+
+  selector:
+    matchLabels:
+      app: financial-ai-streamlit
+
+  template:
+    metadata:
+      labels:
+        app: financial-ai-streamlit
+
+    spec:
+      containers:
+
+        - name: streamlit
+
+          image: "{{ .Values.streamlit.image.repository }}:{{ .Values.streamlit.image.tag }}"
+
+          imagePullPolicy:
+            {{ .Values.streamlit.image.pullPolicy }}
+
+          ports:
+            - containerPort: 8501
+
+          env:
+
+            - name: API_BASE_URL
+              value: http://financial-ai-api:8000

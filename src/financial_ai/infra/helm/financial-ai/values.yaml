@@ -1,0 +1,29 @@
+api:
+  replicaCount: 1
+
+  image:
+    repository: financial-ai-api
+    tag: dev
+    pullPolicy: IfNotPresent
+
+  service:
+    type: ClusterIP
+    port: 8000
+
+
+streamlit:
+  replicaCount: 1
+
+  image:
+    repository: financial-ai-streamlit
+    tag: dev
+    pullPolicy: IfNotPresent
+
+  service:
+    type: ClusterIP
+    port: 8501
+
+
+config:
+  mlflowTrackingUri: http://mlflow:5000
+  ollamaBaseUrl: http://host.docker.internal:11434
